@@ -38,7 +38,7 @@ public abstract class CharacterBase : ICharacter
     {
         // TODO Update this method to ensure the character is removed after attacking them
 
-        OutputManager.WriteLine($"{Name} attacks {target.Name} with a chilling touch.", ConsoleColor.Blue);
+        OutputManager.WriteLine($"{Name} attacks {target.Name} with a thunderous punch.", ConsoleColor.Blue);
 
         if (this is Player player && target is ILootable targetWithTreasure && !string.IsNullOrEmpty(targetWithTreasure.Treasure))
         {

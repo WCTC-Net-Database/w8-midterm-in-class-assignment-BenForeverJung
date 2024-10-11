@@ -47,5 +47,21 @@
     "Level": 2,
     "HP": 8,
     "Treasure": null
+  },
+  {
+    "$type": "Troll",
+    "Name": "Grogg Troll",
+    "Type": "Troll",
+    "Level": 3,
+    "HP": 4,
+    "Treasure": "shiny crystal "
+  },
+  {
+    "$type": "Ogre",
+    "Name": "Zrug Ogre",
+    "Type": "Ogre",
+    "Level": 1,
+    "HP": 10,
+    "Treasure": "large satchel"
   }
 ]

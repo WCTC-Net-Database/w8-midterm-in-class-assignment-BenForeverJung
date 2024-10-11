@@ -55,7 +55,14 @@ public class DataContext : IContext
             {
                 goblin.Treasure = updatedGoblin.Treasure; // Specific to Goblin
             }
-
+            if (existingCharacter is Troll troll && character is Troll updatedTroll)
+            {
+                troll.Treasure = updatedTroll.Treasure; // Specific to Troll
+            }
+            if (existingCharacter is Ogre ogre && character is Ogre updatedOgre)
+            {
+                ogre.Treasure = updatedOgre.Treasure; // Specific to Ogre
+            }
             SaveData();
         }
     }

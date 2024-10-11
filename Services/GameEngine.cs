@@ -11,10 +11,13 @@ public class GameEngine
     private readonly MapManager _mapManager;
     private readonly MenuManager _menuManager;
     private readonly OutputManager _outputManager;
-
+    
     private readonly IRoomFactory _roomFactory;
     private ICharacter _player;
     private ICharacter _goblin;
+    private ICharacter _troll;
+    private ICharacter _ogre;
+
 
     private List<IRoom> _rooms;
 
@@ -41,14 +44,38 @@ public class GameEngine
         // TODO e.g. "Which monster would you like to attack?"
         // TODO Right now it just attacks the first monster in the room.
         // TODO It is ok to leave this functionality if there is only one monster in the room.
-        var target = _player.CurrentRoom.Characters.FirstOrDefault(c => c != _player);
-        if (target != null)
+
+
+        //Console.WriteLine("What monster would you like to attack");
+        //var attackChoice = Console.ReadLine();
+        //Console.WriteLine(attackChoice);
+        int monsterCount = _player.CurrentRoom.Characters.Count();
+
+        while (monsterCount != 0)
         {
-            _player.Attack(target);
-        }
-        else
-        {
-            _outputManager.WriteLine("No characters to attack.", ConsoleColor.Red);
+            
+            Console.WriteLine("Which monster would you like to attack?");
+
+            foreach (var character in _player.CurrentRoom.Characters)
+            {
+                Console.WriteLine($"{character.Name}");
+            }
+
+            var attackChoice = Console.ReadLine();
+            attackChoice = attackChoice.ToLower();
+            
+            var target = _player.CurrentRoom.Characters.FirstOrDefault(c => c.Name.ToLower() == attackChoice);
+
+            if ( target != null)
+            {
+                _player.Attack(target);
+                _player.CurrentRoom.RemoveCharacter(target);
+            }
+            else
+            {
+                Console.WriteLine("No characters in the room match match that name", ConsoleColor.Red);
+            }
+            monsterCount = _player.CurrentRoom.Characters.Count();
         }
     }
 
@@ -124,12 +151,19 @@ public class GameEngine
     private void LoadMonsters()
     {
         _goblin = _context.Characters.OfType<Goblin>().FirstOrDefault();
+        _troll = _context.Characters.OfType<Troll>().FirstOrDefault();
+        _ogre = _context.Characters.OfType<Ogre>().FirstOrDefault();
+
 
         var random = new Random();
         var randomRoom = _rooms[random.Next(_rooms.Count)];
         randomRoom.AddCharacter(_goblin); // Use helper method
 
-        // TODO Load your two new monsters here into the same room
+        // Load your two new monsters here into the same treasure room
+        var treasureRoom = _rooms.FirstOrDefault(r => r.Name == "Treasure Room");
+        treasureRoom.AddCharacter(_troll);
+        treasureRoom.AddCharacter(_ogre);
+
     }
 
     private void SetupGame()
@@ -151,7 +185,7 @@ public class GameEngine
 
     private IRoom SetupRooms()
     {
-        // TODO Update this method to create more rooms and connect them together
+        //  Updated this method to create more rooms and connect them together
 
         var entrance = _roomFactory.CreateRoom("entrance", _outputManager);
         var treasureRoom = _roomFactory.CreateRoom("treasure", _outputManager);
@@ -159,25 +193,38 @@ public class GameEngine
         var library = _roomFactory.CreateRoom("library", _outputManager);
         var armory = _roomFactory.CreateRoom("armory", _outputManager);
         var garden = _roomFactory.CreateRoom("garden", _outputManager);
+        var kitchen = _roomFactory.CreateRoom("kitchen", _outputManager);
+        var diningHall = _roomFactory.CreateRoom("dining", _outputManager);
 
-        entrance.North = treasureRoom;
+
+        entrance.North = diningHall;
         entrance.West = library;
         entrance.East = garden;
 
-        treasureRoom.South = entrance;
+        //treasureRoom.South = diningHall;
         treasureRoom.West = dungeonRoom;
 
+        diningHall.South = entrance;
+        diningHall.West = kitchen;
+        //diningHall.North = treasureRoom;
+
         dungeonRoom.East = treasureRoom;
+        dungeonRoom.South = kitchen;
+
+        kitchen.North = dungeonRoom;
+        kitchen.South = library;
+        kitchen.East = diningHall;
 
         library.East = entrance;
         library.South = armory;
+        library.North = kitchen;
 
         armory.North = library;
 
         garden.West = entrance;
 
         // Store rooms in a list for later use
-        _rooms = new List<IRoom> { entrance, treasureRoom, dungeonRoom, library, armory, garden };
+        _rooms = new List<IRoom> { entrance, treasureRoom, dungeonRoom, library, armory, garden, kitchen, diningHall };
 
         return entrance;
     }
